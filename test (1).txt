@@ -1,0 +1,125 @@
+<div class="container">
+  <div class="products">
+      <h2>Available Products</h2>
+      <div *ngFor="let product of availableProducts" (click)="addToAddedProducts(product)">
+          {{ product.name }}
+      </div>
+  </div>
+
+  <div class="addedproduct">
+      <h2>Added Products</h2>
+      <div *ngFor="let product of addedProducts" (click)="removeFromAddedProducts(product)">
+          {{ product.name }}
+      </div>
+  </div>
+</div>
+<button (click)="sendData()">button</button>
+
+
+
+
+______________________________________________________________________
+
+
+
+import { Component, OnInit } from '@angular/core';
+import { ServiceService } from './service.service'; // Adjust the path based on your service location
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements OnInit {
+
+  constructor( private service:ServiceService){}
+
+  ngOnInit(): void {
+
+  }
+
+  availableProducts: Product[] = [
+      { id: 1, name: 'Product 1' },
+      { id: 2, name: 'Product 2' },
+      { id: 3, name: 'Product 3' }
+  ];
+
+  addedProducts: Product[] = [];
+
+  addToAddedProducts(product: Product) {
+      this.addedProducts.push(product);
+      const index = this.availableProducts.indexOf(product);
+      if (index !== -1) {
+          this.availableProducts.splice(index, 1); 
+      }
+  }
+
+  removeFromAddedProducts(product: Product) {
+      this.availableProducts.push(product);
+      const index = this.addedProducts.indexOf(product);
+      if (index !== -1) {
+          this.addedProducts.splice(index, 1);
+      }
+  }
+  sendData() {
+    const addedProducts = this.addedProducts.map(product => product.id);
+    this.service.sendDataToApi(addedProducts).subscribe(
+      (      response: any) => {
+        console.log('API Response:', response);
+      },
+      (      error: any) => {
+        console.error('Error:', error);
+      }
+    );
+  }
+
+}
+
+interface Product {
+  id: number;
+  name: string;
+}
+
+_________________________________________________
+
+
+
+.container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.products, .addedproduct {
+    width: 45%;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.products {
+    background-color: #f0f0f0;
+}
+
+.addedproduct {
+    background-color: #e0e0e0;
+}
+
+.products h2, .addedproduct h2 {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.products div, .addedproduct div {
+    cursor: pointer;
+    padding: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    background-color: #fff;
+}
+
+.products div:hover, .addedproduct div:hover {
+    background-color: #e6f7ff;
+}
